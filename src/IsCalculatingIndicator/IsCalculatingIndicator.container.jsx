@@ -5,9 +5,9 @@ function IsCalculatingIndicator(props) {
     return null;
   }
   return (
-    <div>
+    <h6>
       Calculating... ({props.calculationProgress}%)
-    </div>
+    </h6>
   )
 }
 
