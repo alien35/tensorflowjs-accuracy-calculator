@@ -14,7 +14,7 @@ function ImageClass(props) {
   return (
     <div className="class-obj">
       <input type="text" placeholder="Class name" onChange={onNameChange} />
-      <input type="file" onChange={onFilesChange} multiple />
+      <input type="file" onChange={onFilesChange} multiple accept="image/png|image/jpg|image/jpeg" />
       <button onClick={props.onDelete}>Delete</button>
     </div>
   )

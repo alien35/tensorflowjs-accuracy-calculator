@@ -23,6 +23,10 @@ function App() {
   const [ successImages, setSuccessImages ] = React.useState([]);
   const [ failImages, setFailImages ] = React.useState([]);
 
+
+
+  console.log(scores, 'scores...');
+
   React.useEffect(() => {
     console.log(scores, numImagesToCalculate, 'hello')
     if (numImagesToCalculate
@@ -101,33 +105,48 @@ function App() {
     setConfidenceThreshold(Math.max(0, Math.min(value, 1)));
   }
 
+  const classifyImage = (files, index, classObj, imageClassifier, _scores) => {
+    console.log(files[index], 'file to check??', index, files.length);
+    if (index >= files.length) {
+      return null;
+    }
+    console.log('this far man')
+    const reader = new FileReader();
+    console.log('fi 2')
+    reader.onload = async (e) => {
+      console.log('on load')
+      const domImg = document.createElement('img');
+      domImg.src = e.target.result;
+      const result = await imageClassifier.predict(domImg);
+      // setScores([...scores, {expected: classObj.name, result}]);
+      console.log(result ,' result here')
+      _scores.push({expected: classObj.name, result});
+      console.log(_scores, '_scores down here');
+      setScores(_scores);
+      setCalculationProgress(_scores.length);
+      classifyImage(files, index + 1, classObj, imageClassifier, _scores);
+    }
+    console.log('starting read as data')
+    reader.readAsDataURL(files[index]);
+    
+  }
+
   const onCalculateAccuracy = async () => {
     setNumImagesCalculated(0);
     setDoneCalculating(false);
-    setCalculationProgress(1);
     let _numImagesToCalculate = 0;
     classes.forEach((classObj) => {
       _numImagesToCalculate += Array.from(classObj.files).length;
     })
     setNumImagesToCalculate(_numImagesToCalculate);
-    setCalculationProgress(2);
     let numImagesCalculated = 0;
     const imageClassifier = await ml5.imageClassifier(`${window.location.origin}/models/${mlFolderName}/model.json`);
-    setCalculationProgress(5);
     
+
     classes.forEach((classObj) => {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const domImg = document.createElement('img');
-        domImg.src = e.target.result;
-        const result = await imageClassifier.predict(domImg);
-        setScores([...scores, {expected: classObj.name, result}])
-        console.log(result, 'result here');
-      }
-      
-      Array.from(classObj.files).forEach(async (file) => {
-        reader.readAsDataURL(file);
-      })
+      const _scores = [];
+      const filesArray = Array.from(classObj.files);
+      classifyImage(filesArray, 0, classObj, imageClassifier, _scores);
     })
 
   }
@@ -135,8 +154,6 @@ function App() {
   const onChangeMLFolderName = (value) => {
     setMLFolderName(value);
   }
-
-  console.log(scores, 'scores');
 
   return (
     <div className="main">
