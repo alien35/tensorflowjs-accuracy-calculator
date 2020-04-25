@@ -1,13 +1,11 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-import ImageClasses from './Prepare/ImageClasses/ImageClasses.container';
-import AddClassBtn from './Prepare/AddClassBtn/AddClassBtn.container';
-import AccuracyDisplay from './Prepare/AccuracyDisplay/AccuracyDisplay.container';
-import ConfidenceThresholdInput from './Prepare/ConfidenceThresholdInput/ConfidenceThresholdInput.container';
-import CalculateAccuracyBtn from './Prepare/CalculateAccuracyBtn/CalculateAccuracyBtn.container';
-import IsCalculatingIndicator from './Prepare/IsCalculatingIndicator/IsCalculatingIndicator.container';
-import MLFolderNameInput from './Prepare/MLFolderNameInput/MLFolderNameInput.container';
+import ImageClasses from './ImageClasses/ImageClasses.container';
+import AddClassBtn from './AddClassBtn/AddClassBtn.container';
+import AccuracyDisplay from './AccuracyDisplay/AccuracyDisplay.container';
+import ConfidenceThresholdInput from './ConfidenceThresholdInput/ConfidenceThresholdInput.container';
+import CalculateAccuracyBtn from './CalculateAccuracyBtn/CalculateAccuracyBtn.container';
+import IsCalculatingIndicator from './IsCalculatingIndicator/IsCalculatingIndicator.container';
+import MLFolderNameInput from './MLFolderNameInput/MLFolderNameInput.container';
 
 function App() {
 

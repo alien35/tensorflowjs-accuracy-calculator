@@ -7,3 +7,13 @@
   padding: 1rem;
   margin: 1rem;
 }
+
+.tested-images {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.tested-image {
+  max-width: 6rem;
+}
