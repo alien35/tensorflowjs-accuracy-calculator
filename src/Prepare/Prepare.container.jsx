@@ -7,7 +7,7 @@ import CalculateAccuracyBtn from './CalculateAccuracyBtn/CalculateAccuracyBtn.co
 import IsCalculatingIndicator from './IsCalculatingIndicator/IsCalculatingIndicator.container';
 import MLFolderNameInput from './MLFolderNameInput/MLFolderNameInput.container';
 
-function App() {
+function Prepare() {
 
   const [ classes, setClasses ] = React.useState([{name: '', id: 1, files: null}]);
   const [ classIdToUse, setClassIdToUse ] = React.useState(2);
@@ -196,4 +196,4 @@ function App() {
   );
 }
 
-export default App;
+export default Prepare;

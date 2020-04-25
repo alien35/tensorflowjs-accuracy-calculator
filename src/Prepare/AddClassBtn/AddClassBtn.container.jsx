@@ -1,10 +1,11 @@
 import React from 'react';
+import Button from '@material-ui/core/Button';
 
 function AddClassBtn(props) {
   return (
-    <div>
-      <button onClick={props.addClass}>[+] Add a class</button>
-    </div>
+    <Button variant="contained"  size="small" color="primary" onClick={props.addClass}>
+      [+] Add a class
+    </Button>
   )
 }
 
