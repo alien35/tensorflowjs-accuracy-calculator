@@ -15,7 +15,50 @@ function App() {
   const [ classIdToUse, setClassIdToUse ] = React.useState(2);
   const [ confidenceThreshold, setConfidenceThreshold ] = React.useState(0.9);
   const [ calculationProgress, setCalculationProgress ] = React.useState(0);
+  const [ doneCalculating, setDoneCalculating ] = React.useState(false);
   const [ mlFolderName, setMLFolderName ] = React.useState('my-model-folder');
+  const [ scores, setScores ] = React.useState([]);
+  const [ numImagesToCalculate, setNumImagesToCalculate ] = React.useState(0);
+  const [ numImagesCalculated, setNumImagesCalculated ] = React.useState(0);
+  const [ successImages, setSuccessImages ] = React.useState([]);
+  const [ failImages, setFailImages ] = React.useState([]);
+
+  React.useEffect(() => {
+    console.log(scores, numImagesToCalculate, 'hello')
+    if (numImagesToCalculate
+      && scores.length
+      && scores.length === numImagesToCalculate
+      && !doneCalculating) {
+        setDoneCalculating(true);
+        calculateScores();
+        console.log('done here bro');
+    }
+  }, [scores]);
+
+  const calculateScores = () => {
+    let numPassed = 0;
+    const total = scores.length;
+    scores.map((score) => {
+      let imagePassed = true;
+      score.result.forEach((scoreResult) => {
+        const normalizedScore = scoreResult.confidence > 1 ? 0 : scoreResult.confidence;
+        if (scoreResult.label === score.expected) {
+          if (normalizedScore < confidenceThreshold) {
+            imagePassed = false;
+          }
+        } else {
+          if (normalizedScore >= confidenceThreshold) {
+            imagePassed = false;
+          }
+        }
+      })
+      if (imagePassed) {
+        setSuccessImages([...successImages, score]);
+      } else {
+        setFailImages([...failImages, score]);
+      }
+    })
+  }
 
   const onUpdateClasses = (_classes) => {
     setClasses(_classes);
@@ -59,21 +102,29 @@ function App() {
   }
 
   const onCalculateAccuracy = async () => {
+    setNumImagesCalculated(0);
+    setDoneCalculating(false);
     setCalculationProgress(1);
+    let _numImagesToCalculate = 0;
+    classes.forEach((classObj) => {
+      _numImagesToCalculate += Array.from(classObj.files).length;
+    })
+    setNumImagesToCalculate(_numImagesToCalculate);
+    setCalculationProgress(2);
+    let numImagesCalculated = 0;
     const imageClassifier = await ml5.imageClassifier(`${window.location.origin}/models/${mlFolderName}/model.json`);
     setCalculationProgress(5);
     
     classes.forEach((classObj) => {
       const reader = new FileReader();
       reader.onload = async (e) => {
-        console.log(e.target.result, 'target hereee');
         const domImg = document.createElement('img');
         domImg.src = e.target.result;
         const result = await imageClassifier.predict(domImg);
+        setScores([...scores, {expected: classObj.name, result}])
         console.log(result, 'result here');
       }
       
-      console.log(classObj, 'obj here man..');
       Array.from(classObj.files).forEach(async (file) => {
         reader.readAsDataURL(file);
       })
@@ -85,9 +136,11 @@ function App() {
     setMLFolderName(value);
   }
 
+  console.log(scores, 'scores');
+
   return (
     <div className="main">
-      <h1>ml5.js Accuracy Calculator</h1>
+      <h1>Tensorflow.js ML Model Accuracy Calculator</h1>
       <p>Calculate the accuracy of your <a href="https://www.tensorflow.org/js" target="_blank">tensorflow.js</a> image classification model for a given confidence threshold.</p>
       <p>If you don't have a model to test yet, get started at <a href="https://teachablemachine.withgoogle.com/train" target="_blank">https://teachablemachine.withgoogle.com/train</a></p>
       <br />
@@ -111,7 +164,7 @@ function App() {
       <h3>2. Configure the ML model file path</h3>
       <MLFolderNameInput value={mlFolderName} onChange={onChangeMLFolderName} />
       <CalculateAccuracyBtn calculateAccuracy={onCalculateAccuracy} />
-      <IsCalculatingIndicator calculationProgress={calculationProgress} />
+      <IsCalculatingIndicator doneCalculating={doneCalculating} calculationProgress={calculationProgress} />
       <br />
       <br />
       <hr />
@@ -122,7 +175,7 @@ function App() {
       <p>
         Confidence threshold: <ConfidenceThresholdInput value={confidenceThreshold} onChange={onChangeConfidenceThreshold} />
       </p>
-      <AccuracyDisplay />
+      <AccuracyDisplay confidenceThreshold={confidenceThreshold} doneCalculating={doneCalculating} successImages={successImages} failImages={failImages} />
     </div>
   );
 }
