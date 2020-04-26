@@ -1,15 +1,15 @@
 import React from 'react';
 
 function IsCalculatingIndicator(props) {
-  if (props.calculationProgress === 0) {
+  if (!props.scores.isProcessing) {
     return null;
   }
-  if (props.doneCalculating) {
+  if (props.scores.doneProcessing) {
     return null;
   }
   return (
     <h6>
-      Calculating... ({props.calculationProgress}%)
+      Processing: {props.calculationProgress}
     </h6>
   )
 }

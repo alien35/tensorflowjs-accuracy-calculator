@@ -13,22 +13,16 @@ function Prepare(props) {
   const [ classes, setClasses ] = React.useState([{name: '', id: 1, files: null}]);
   const [ classIdToUse, setClassIdToUse ] = React.useState(2);
   const [ confidenceThreshold, setConfidenceThreshold ] = React.useState(0.9);
-  const [ calculationProgress, setCalculationProgress ] = React.useState(0);
+  const [ calculationProgress, setCalculationProgress ] = React.useState('');
   const [ doneCalculating, setDoneCalculating ] = React.useState(false);
   const [ isCalculating, setIsCalculating ] = React.useState(false);
   const [ mlFolderName, setMLFolderName ] = React.useState('my-model-folder');
   const [ scores, setScores ] = React.useState([]);
   const [ numImagesToCalculate, setNumImagesToCalculate ] = React.useState(0);
-  const [ numImagesCalculated, setNumImagesCalculated ] = React.useState(0);
   const [ successImages, setSuccessImages ] = React.useState([]);
   const [ failImages, setFailImages ] = React.useState([]);
 
-
-
-  console.log(scores, 'scores...');
-
   React.useEffect(() => {
-    console.log(scores, scores.length, numImagesToCalculate, 'hello', doneCalculating, scores[1])
     if (numImagesToCalculate
       && scores.length
       && scores.length === numImagesToCalculate
@@ -36,12 +30,11 @@ function Prepare(props) {
         setDoneCalculating(true);
         setIsCalculating(false);
         calculateScores();
-        console.log('done here bro');
     }
   });
 
   const calculateScores = () => {
-    scores.map((score) => {
+    scores.forEach((score) => {
       let imagePassed = true;
       score.result.forEach((scoreResult) => {
         const normalizedScore = scoreResult.confidence > 1 ? 0 : scoreResult.confidence;
@@ -100,41 +93,35 @@ function Prepare(props) {
     }))
   }
 
-  const onChangeConfidenceThreshold = (value) => {
-    setConfidenceThreshold(Math.max(0, Math.min(value, 1)));
-  }
-
-  const classifyImage = (files, index, classObj, imageClassifier, _scores) => {
-    console.log(files[index], 'file to check??', index, files.length);
+  const classifyImage = (files, index, classObj, imageClassifier, _scores, classIndex) => {
     if (index >= files.length) {
+      const newClassIndex = classIndex + 1;
+      if (classes[newClassIndex]) {
+        const filesArray = Array.from(classes[newClassIndex].files);
+        return classifyImage(filesArray, 0, classes[newClassIndex], imageClassifier, _scores, newClassIndex);
+      }
       return null;
     }
-    console.log('this far man')
     const reader = new FileReader();
-    console.log('fi 2')
     reader.onload = async (e) => {
-      console.log('on load')
       const domImg = document.createElement('img');
       domImg.src = e.target.result;
       const result = await imageClassifier.predict(domImg);
       // setScores([...scores, {expected: classObj.name, result}]);
-      console.log(result ,' result here')
       _scores.push({expected: classObj.name, result, imgSrc: e.target.result});
-      console.log(_scores, '_scores down here');
       setScores(_scores);
-      props.scoreActions.setScores(_scores, files.length);
-      setCalculationProgress(_scores.length);
-      classifyImage(files, index + 1, classObj, imageClassifier, _scores);
+      props.scoreActions.setScores(_scores, numImagesToCalculate);
+      setCalculationProgress(`${_scores.length} image${_scores.length === 1 ? '' : 's'} analyzed.`);
+      classifyImage(files, index + 1, classObj, imageClassifier, _scores, classIndex);
     }
-    console.log('starting read as data')
     reader.readAsDataURL(files[index]);
     
   }
 
   const onCalculateAccuracy = async () => {
-    setNumImagesCalculated(0);
     setIsCalculating(true);
     setDoneCalculating(false);
+    setCalculationProgress('Loading model');
     let _numImagesToCalculate = 0;
     classes.forEach((classObj) => {
       _numImagesToCalculate += Array.from(classObj.files).length;
@@ -142,13 +129,9 @@ function Prepare(props) {
     setNumImagesToCalculate(_numImagesToCalculate);
     let numImagesCalculated = 0;
     const imageClassifier = await ml5.imageClassifier(`${window.location.origin}/models/${mlFolderName}/model.json`);
-    
-
-    classes.forEach((classObj) => {
-      const _scores = [];
-      const filesArray = Array.from(classObj.files);
-      classifyImage(filesArray, 0, classObj, imageClassifier, _scores);
-    })
+    const _scores = [];
+    const filesArray = Array.from(classes[0].files);
+    classifyImage(filesArray, 0, classes[0], imageClassifier, _scores, 0);
 
   }
 
@@ -182,7 +165,7 @@ function Prepare(props) {
       <h3>2. Configure the ML model file path</h3>
       <MLFolderNameInput value={mlFolderName} onChange={onChangeMLFolderName} />
       <CalculateAccuracyBtn isCalculating={isCalculating} calculateAccuracy={onCalculateAccuracy} />
-      <IsCalculatingIndicator doneCalculating={doneCalculating} calculationProgress={calculationProgress} />
+      <IsCalculatingIndicator scores={props.scores} doneCalculating={doneCalculating} calculationProgress={calculationProgress} />
       <br />
       <br />
       <hr />
@@ -192,7 +175,6 @@ function Prepare(props) {
 }
 
 const mapStateToProps = state => {
-    console.log(state, 'stateeee')
     return {
       scores: state.scores.results,
     };

@@ -13,7 +13,6 @@ function Analyze(props) {
   const [ scoresCalculated, setScoresCalculated ] = React.useState(false);
 
   React.useEffect(() => {
-    console.log('using effec analy');
     if (!scoresCalculated) {
       setScoresCalculated(true);
       calculateScores();
@@ -39,9 +38,7 @@ function Analyze(props) {
     let _successImages = [];
     let _failureImages = [];
     props.scores.results.forEach((score) => {
-      console.log(score, 'score here')
       const _imagePassed = imagePassed(score.result, score.expected);
-      console.log(_imagePassed, 'did pass here');
       if (_imagePassed) {
         _successImages.push(score);
       } else {
@@ -55,9 +52,6 @@ function Analyze(props) {
   const onChangeConfidenceThreshold = (value) => {
     setConfidenceThreshold(Math.max(0, Math.min(value, 1)));
   }
-
-  console.log(successImages, 'successImages..')
-  console.log(failImages, 'failImages..')
 
   return (
     <div className="main">
@@ -73,7 +67,6 @@ function Analyze(props) {
 }
 
 const mapStateToProps = state => {
-    console.log(state, 'stateeee')
     return {
       scores: state.scores,
     };

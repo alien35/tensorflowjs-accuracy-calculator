@@ -12,7 +12,8 @@ export default function reducer(state = initialState, action = {}) {
     case types.SET_SCORES:
       return {
         results: action.scores,
-        isProcessing: !(action.scores.length === action.numImagesToAnalyze),
+        numImagesToAnalyze: action.numImagesToAnalyze,
+        isProcessing: action.scores.length !== action.numImagesToAnalyze,
         doneProcessing: action.scores.length === action.numImagesToAnalyze
       };
     case types.CLEAR_SCORES:

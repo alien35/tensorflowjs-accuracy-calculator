@@ -66,7 +66,6 @@ function TopBar(props) {
         <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
           <Tab label="Prepare" {...a11yProps(0)} />
           <Tab disabled={!props.scores.doneProcessing} label="Analyze" {...a11yProps(1)} />
-          <Tab disabled={!props.scores.doneProcessing} label="Report" {...a11yProps(2)} />
         </Tabs>
       </AppBar>
       <TabPanel value={value} index={0}>
@@ -83,7 +82,6 @@ function TopBar(props) {
 }
 
 const mapStateToProps = state => {
-    console.log(state, 'stateeee')
     return {
       scores: state.scores,
     };
