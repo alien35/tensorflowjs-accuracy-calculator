@@ -10,11 +10,12 @@ const initialState = {
 export default function reducer(state = initialState, action = {}) {
   switch (action.type) {
     case types.SET_SCORES:
+      const numImagesToAnalyze = action.numImagesToAnalyze || state.numImagesToAnalyze
       return {
         results: action.scores,
-        numImagesToAnalyze: action.numImagesToAnalyze,
-        isProcessing: action.scores.length !== action.numImagesToAnalyze,
-        doneProcessing: action.scores.length === action.numImagesToAnalyze
+        numImagesToAnalyze,
+        isProcessing: action.scores.length !== numImagesToAnalyze,
+        doneProcessing: action.scores.length === numImagesToAnalyze
       };
     case types.CLEAR_SCORES:
       return initialState;

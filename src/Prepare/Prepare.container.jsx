@@ -12,49 +12,8 @@ function Prepare(props) {
 
   const [ classes, setClasses ] = React.useState([{name: '', id: 1, files: null}]);
   const [ classIdToUse, setClassIdToUse ] = React.useState(2);
-  const [ confidenceThreshold, setConfidenceThreshold ] = React.useState(0.9);
   const [ calculationProgress, setCalculationProgress ] = React.useState('');
-  const [ doneCalculating, setDoneCalculating ] = React.useState(false);
-  const [ isCalculating, setIsCalculating ] = React.useState(false);
   const [ mlFolderName, setMLFolderName ] = React.useState('my-model-folder');
-  const [ scores, setScores ] = React.useState([]);
-  const [ numImagesToCalculate, setNumImagesToCalculate ] = React.useState(0);
-  const [ successImages, setSuccessImages ] = React.useState([]);
-  const [ failImages, setFailImages ] = React.useState([]);
-
-  React.useEffect(() => {
-    if (numImagesToCalculate
-      && scores.length
-      && scores.length === numImagesToCalculate
-      && !doneCalculating) {
-        setDoneCalculating(true);
-        setIsCalculating(false);
-        calculateScores();
-    }
-  });
-
-  const calculateScores = () => {
-    scores.forEach((score) => {
-      let imagePassed = true;
-      score.result.forEach((scoreResult) => {
-        const normalizedScore = scoreResult.confidence > 1 ? 0 : scoreResult.confidence;
-        if (scoreResult.label === score.expected) {
-          if (normalizedScore < confidenceThreshold) {
-            imagePassed = false;
-          }
-        } else {
-          if (normalizedScore >= confidenceThreshold) {
-            imagePassed = false;
-          }
-        }
-      })
-      if (imagePassed) {
-        setSuccessImages([...successImages, score]);
-      } else {
-        setFailImages([...failImages, score]);
-      }
-    })
-  }
 
   const onUpdateClasses = (_classes) => {
     setClasses(_classes);
@@ -109,8 +68,7 @@ function Prepare(props) {
       const result = await imageClassifier.predict(domImg);
       // setScores([...scores, {expected: classObj.name, result}]);
       _scores.push({expected: classObj.name, result, imgSrc: e.target.result});
-      setScores(_scores);
-      props.scoreActions.setScores(_scores, numImagesToCalculate);
+      props.scoreActions.setScores(_scores);
       setCalculationProgress(`${_scores.length} image${_scores.length === 1 ? '' : 's'} analyzed.`);
       classifyImage(files, index + 1, classObj, imageClassifier, _scores, classIndex);
     }
@@ -119,15 +77,12 @@ function Prepare(props) {
   }
 
   const onCalculateAccuracy = async () => {
-    setIsCalculating(true);
-    setDoneCalculating(false);
     setCalculationProgress('Loading model');
     let _numImagesToCalculate = 0;
     classes.forEach((classObj) => {
       _numImagesToCalculate += Array.from(classObj.files).length;
     })
-    setNumImagesToCalculate(_numImagesToCalculate);
-    let numImagesCalculated = 0;
+    props.scoreActions.setScores([], _numImagesToCalculate);
     const imageClassifier = await ml5.imageClassifier(`${window.location.origin}/models/${mlFolderName}/model.json`);
     const _scores = [];
     const filesArray = Array.from(classes[0].files);
@@ -164,8 +119,8 @@ function Prepare(props) {
       <br />
       <h3>2. Configure the ML model file path</h3>
       <MLFolderNameInput value={mlFolderName} onChange={onChangeMLFolderName} />
-      <CalculateAccuracyBtn isCalculating={isCalculating} calculateAccuracy={onCalculateAccuracy} />
-      <IsCalculatingIndicator scores={props.scores} doneCalculating={doneCalculating} calculationProgress={calculationProgress} />
+      <CalculateAccuracyBtn isCalculating={props.scores.isProcessing} calculateAccuracy={onCalculateAccuracy} />
+      <IsCalculatingIndicator scores={props.scores} calculationProgress={calculationProgress} />
       <br />
       <br />
       <hr />
@@ -175,8 +130,9 @@ function Prepare(props) {
 }
 
 const mapStateToProps = state => {
+    console.log(state.scores.numImagesToAnalyze, 'state..');
     return {
-      scores: state.scores.results,
+      scores: state.scores,
     };
 };
 
