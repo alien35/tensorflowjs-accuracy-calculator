@@ -1,8 +1,8 @@
-# Tensorflow.js ML Model Accuracy Calculator
+# Teachable Machine Model Accuracy Calculator
 
-Calculate the accuracy of your [tensorflow.js](https://www.tensorflow.org/js) image classification model for a given confidence threshold.
+Calculate the accuracy of your [teachable machine](https://teachablemachine.withgoogle.com/train) image classification model for a given confidence threshold.
 
-If you don't have a model to test yet, get started at [https://teachablemachine.withgoogle.com/train](https://teachablemachine.withgoogle.com/train)
+If you don't have a model to test yet, get started here: [https://teachablemachine.withgoogle.com/train](https://teachablemachine.withgoogle.com/train)
 
 ![sample image 1](https://i.postimg.cc/8CFqqHZs/Screen-Shot-2020-04-26-at-10-17-08-AM.png "Sample Screenshot 1")
 
