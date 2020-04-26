@@ -1,13 +1,14 @@
 import React from 'react';
 import ImageClasses from './ImageClasses/ImageClasses.container';
 import AddClassBtn from './AddClassBtn/AddClassBtn.container';
-import AccuracyDisplay from './AccuracyDisplay/AccuracyDisplay.container';
-import ConfidenceThresholdInput from './ConfidenceThresholdInput/ConfidenceThresholdInput.container';
 import CalculateAccuracyBtn from './CalculateAccuracyBtn/CalculateAccuracyBtn.container';
 import IsCalculatingIndicator from './IsCalculatingIndicator/IsCalculatingIndicator.container';
 import MLFolderNameInput from './MLFolderNameInput/MLFolderNameInput.container';
+import { connect } from 'react-redux';
+import * as ScoreActions from '../redux/actions/score.actions';
+import { bindActionCreators } from 'redux';
 
-function Prepare() {
+function Prepare(props) {
 
   const [ classes, setClasses ] = React.useState([{name: '', id: 1, files: null}]);
   const [ classIdToUse, setClassIdToUse ] = React.useState(2);
@@ -121,6 +122,7 @@ function Prepare() {
       _scores.push({expected: classObj.name, result, imgSrc: e.target.result});
       console.log(_scores, '_scores down here');
       setScores(_scores);
+      props.scoreActions.setScores(_scores, files.length);
       setCalculationProgress(_scores.length);
       classifyImage(files, index + 1, classObj, imageClassifier, _scores);
     }
@@ -185,15 +187,20 @@ function Prepare() {
       <br />
       <hr />
       <br />
-      <h3>
-        3. Inspect the results
-      </h3>
-      <p>
-        Confidence threshold: <ConfidenceThresholdInput value={confidenceThreshold} onChange={onChangeConfidenceThreshold} />
-      </p>
-      <AccuracyDisplay confidenceThreshold={confidenceThreshold} doneCalculating={doneCalculating} successImages={successImages} failImages={failImages} scores={scores} />
     </div>
   );
 }
 
-export default Prepare;
+const mapStateToProps = state => {
+    console.log(state, 'stateeee')
+    return {
+      scores: state.scores.results,
+    };
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  scoreActions: bindActionCreators(ScoreActions, dispatch)
+    // inspectionsActions: bindActionCreators(InspectionsActions, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Prepare);
