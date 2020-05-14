@@ -8,4 +8,4 @@ If you don't have a model to test yet, get started here: [https://teachablemachi
 
 ![sample image 2](https://i.postimg.cc/Vs93Q5W9/Screen-Shot-2020-04-26-at-10-30-14-AM.png "Sample Screenshot 2")
 
-Tool built using [ml5.js](https://ml5js.org/)
+Shout out to [ml5.js](https://ml5js.org/)!
